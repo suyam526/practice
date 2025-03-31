@@ -16,7 +16,7 @@ pd.crosstab(train_df['Title'], train_df['Sex'])
 
 
 ## Age 결측치 채우기
-```
+```py
 for dataset in combine:
     for i in range(0, 2):
         for j in range(0, 3):
