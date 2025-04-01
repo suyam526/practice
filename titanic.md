@@ -13,7 +13,9 @@ pd.crosstab(train_df['Title'], train_df['Sex'])
 ```
 
 - combine으로 묶은 후, train, test 데이터셋을 같은 방식으로 수정하고 싶을 때 for문을 사용해서 각각 같은 방식으로 바꾸기 (train 한번, test 한번 각각 바꿈)
-
+<br/>
+<br/>
+<br/>
 
 ## Age 결측치 채우기
 ```py
@@ -45,6 +47,9 @@ train_df.head()
 - Age 결측치 채우기 위해 ```Sex```와 ```Pclass```를 기준으로 각 그룹의 Age의 중앙값을 계산하고, 이를 결측값에 대체!
 - Sex(남성, 여성)와 Pclass(1,2,3)의 조합별로 중앙값을 구하고, 그 값을 Age 컬럼의 결측치에 할당해 데이터 채움
 - EX. Sex가 '남성', Pclass가 '1'인 그룹의 Age 값이 결측치일 경우 그 그룹의 다른 '남성'이면서 '1'인 사람들의 Age 중앙값을 계산 
+<br/>
+<br/>
+<br/>
 
 ## 두 가지 특성의 상호작용을 고려하기 위해 Age*Class라는 새로운 특성 만들기
 - 같은 범주로 묶을 수 있는 Parch, SibSp을 더해서 FamilySize를 만드는 경우는 봤어도 아예 다른 특성을 곱하는건 또 처음 본다..! 왜 Age*Pclass를 만들까?
@@ -67,3 +72,29 @@ train_df.head()
 
         2. 모델이 Age와 Pclass를 각각 따로 사용하는 것보다 Age*Class를 더 유용하게 활용하는지 확인하려면, 모델 성능을 비교하면서 검증해야 함
 
+<br/>
+<br/>
+<br/>
+
+## 훈련, 테스트 세트 나누기
+```py
+X_train = train_df.drop("Survived", axis=1)
+Y_train = train_df["Survived"]
+```
+- Survived(타겟 변수, 레이블)는 Y_train으로 분리하고, 나머지 특징들은 모델의 입력값(독립 변수)로 사용하기 위해 X_train으로 분리
+- 머신러닝 모델은 X_train을 보고 Y_train을 예측하는 법을 배우는 것
+
+- shape 확인해서 올바르게 분리되었는지 확인하기!
+
+```py
+X_test = test_df.drop("PassengerId", axis=1).copy()
+```
+- 왜 테스트 데이터에서 PassengerId를 이 단계에서 제거할까? 앞에서 제거하면 안되나?
+    - train에서는 PassengerId가 Survived과는 연관이 없다고 판단해 처음부터 제거해도 문제 없음
+    - 캐글 같은 대회에서는 예측 결과를 제출할 때 각 승객의 ID와 예측 결과를 함께 제출해야 하므로, 예측 후에 제출할 때는 submission.csv 파일에 PassengerId를 포함해서 제출해야함
+<br/>
+<br/>
+<br/>
+
+## 모델 9개 돌린 결과
+![prac1](./image/prac1.png)
