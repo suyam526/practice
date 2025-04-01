@@ -1,4 +1,4 @@
-## train, test 함께 처리하는 방식
+# train, test 함께 처리하는 방식
 ```py
 train_df = pd.read_csv('train.csv')
 test_df = pd.read_csv('test.csv')
@@ -18,7 +18,7 @@ pd.crosstab(train_df['Title'], train_df['Sex'])
 <br/>
 
 
-## Age 결측치 채우기
+# Age 결측치 채우기
 ```py
 for dataset in combine:
     for i in range(0, 2):
@@ -52,7 +52,7 @@ train_df.head()
 <br/>
 <br/>
 
-## 두 가지 특성의 상호작용을 고려하기 위해 Age*Class라는 새로운 특성 만들기
+# 두 가지 특성의 상호작용을 고려하기 위해 Age*Class라는 새로운 특성 만들기
 - 같은 범주로 묶을 수 있는 Parch, SibSp을 더해서 FamilySize를 만드는 경우는 봤어도 아예 다른 특성을 곱하는건 또 처음 본다..! 왜 Age*Pclass를 만들까? 🤔
     - 이 데이터에서 Age와 Pclass는 모두 Survived에 영향을 주는 중요한 변수
         - Pclass : 1등급 객실 승객의 생존율이 가장 높고, 3등급 승객의 생존율이 가장 낮음
