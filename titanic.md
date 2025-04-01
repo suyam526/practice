@@ -111,20 +111,13 @@ X_test = test_df.drop("PassengerId", axis=1).copy()
 - ✳️ 목표: 두 개 이상의 클래스를 가장 잘 구분하는 **결정 경계**를 찾는 것
     - 결정 경계란?
         - 두 개의 클래스를 구분하는 선(2D), 평면(3D), 또는 초평면(n차원 공간에서의 결정 경계)
-        - 선형 SVM : 직선(2D), 평면(3D) 형태로 데이터 나눔
-            - 데이터가 선형적으로 구분될 때, (차원이 많아도) 결정 경계가 직선 형태로 나오는 경우 사용 <br/>
-            ```py
-            from sklearn.svm import SVC
-            model = SVC(kernel='linear')  # 선형 SVM
-            model.fit(X_train, Y_train)
-            ```
-            <br/>
+        <br/>
 
     - 마진이란?
         - 결정 경계와 가장 가까운 데이터 포인트 간의 거리 (데이터 포인트들이 결정 경계에서 멀리 떨어져 있을수록 좋음)
         - 마진이 클수록 일반화 성능이 좋음! 
         - SVM은 마진을 최대화하는 초평면을 찾음 = 즉 **가장 확실하게 구분하는 선**을 찾음
-    <br/>
+        <br/>
 
     - 서포트 벡터란?
         - 결정 경계를 정의하는 가장 중요한 데이터 포인트들 = 경계선 바로 근처에 있는 데이터
@@ -132,9 +125,20 @@ X_test = test_df.drop("PassengerId", axis=1).copy()
 
         <br/>
 
-        - 비선형 SVM : 곡선이나 복잡한 형태의 경계를 만듬
+        - *선형 SVM* : 직선(2D), 평면(3D) 형태로 데이터 나눔
+            - 데이터가 선형적으로 구분될 때, (차원이 많아도) 결정 경계가 직선 형태로 나오는 경우 사용 <br/>
+
+            ```py
+            from sklearn.svm import SVC
+            model = SVC(kernel='linear')  # 선형 SVM
+            model.fit(X_train, Y_train)
+            ```
+        <br/>
+
+        - *비선형 SVM* : 곡선이나 복잡한 형태의 경계를 만듬
             - 데이터가 선형적으로 나뉘지 않을 때
             - 원래 공간에서는 곡선 형태로 나뉘어야 하는 데이터를 "고차원 공간"에서 직선으로 변환하여 분류 <br/>
+
             ```py
             model = SVC(kernel='rbf')  # 비선형 SVM (RBF 커널 사용)
             model.fit(X_train, Y_train)
