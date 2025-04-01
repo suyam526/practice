@@ -105,6 +105,19 @@ X_test = test_df.drop("PassengerId", axis=1).copy()
 ## 모델 9개 
 ![prac1](./image/prac1.png)
 
+
+### Linear SVC
+- Logistic Regression : 오차를 기반으로 가장 잘 분류해주는 어떤 선을 찾는 것
+![prac2](./image/prac2.png)
+이 그림에서 가장 합리적인 선은 빨간색일 것! <br/>
+BUT 로지스틱으로 빨간색 선을 그리기 어려움. 오차를 기반으로 하기 때문에 오차 작아지는 쪽으로 그렸을 때 빨간색 선이 그려질 수 없음.<br/>
+
+💡 그래서 마진(Margin) 개념을 사용하는 SVM 모델 등장
+
+
+
+
+
 ### Support Vector Machines (SVM)
 - 분류와 회귀 문제를 해결하는 지도 학습 알고리즘
 - ✳️ 특징: 작은 데이터셋에서도 뛰어난 성능, 복잡한 비선형 관계도 잘 분류
@@ -147,9 +160,6 @@ X_test = test_df.drop("PassengerId", axis=1).copy()
 
 
 
-### Linear SVC
 
-### Perceptron
 
-### Naive Bayes
 
