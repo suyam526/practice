@@ -256,3 +256,21 @@ def add_noise(series, noise_level):
 - 타겟 누수를 줄이기 위해 약간의 랜덤 노이즈 섞기
     - 타겟 인코딩은 target 기반 값이므로 너무 직접적인 인코딩이 되면 과적합 위험이 있다..!
     - 그래서 약간의 노이즈를 섞어 일반화 성능을 높인 상태로 마무리!
+
+- 타겟 누수란?
+    - 학습 과정에서 테스트에 대한 정보가 (직간접적으로) 포함되어 모델 성능이 과도하게 좋아지는 현상<br/>
+        - target에서 학습 데이터로 계산한 평균값 자체만! 가져오기만 해야됨
+
+    ```py
+    df_all = pd.concat([train, test])
+    df_all['category_encoded'] = df_all.groupby('category')['target'].transform('mean')
+    ```
+    - 그런데 만약 위 같은 코드로 test의 타겟 값까지 포함해서 평균을 계산해버리면 답안지를 본 것이나 다름 없음
+
+    <br/>
+    
+    - 해결법
+    1. trn_series와 target만으로 평균을 계산
+    2. tst_series에는 오직 'category' 값만 사용해서 merge
+    3. 마지막에 노이즈를 살짝 추가해 평균값 자체에 모델이 의존하지 않도록 일반화시키기
+
