@@ -116,8 +116,10 @@ metadata[(metadata.type == 'categorical') & (metadata.preserve)].index
 <br/>
 <br/>
 
-## 범주형 변수 target encoding
 
+# 범주형 변수 target encoding
+
+## 개념 설명
 ### target encdoing이란?
 - 범주형 변수를 숫자로 바꾸는 기법 중 하나
     - 각 범주에 대해 그 범주의 평균 타겟값으로 숫자를 부여 <br/>
@@ -140,7 +142,8 @@ def target_encode(trn_series=None,
 - 과적합을 방지할 수 있음
 <br/>
 
-### add_noise()
+## 흐름 정리
+### [1] add_noise() : 초기 노이즈 더하기
 ```py
 def add_noise(series, noise_level):
     return series * (1 + noise_level * np.random.randn(len(series)))
@@ -150,11 +153,10 @@ def add_noise(series, noise_level):
 <br/>
 
 
-### 초기 안전 검사 및 데이터 준비
+### [2] assert : 초기 안전 검사 및 데이터 준비
 ```py
     assert len(trn_series) == len(target)
     assert trn_series.name == tst_series.name
-    temp = pd.concat([trn_series, target], axis=1)
 ```
 1. trn_series(학습용 범주형 변수)와 target값 *길이가 같은지* 확인, 안 맞으면 오류를 발생시켜 함수 실행 중단
     - 열마다 정확히 대응되는 값이 있어야 평균 계산 가능
@@ -170,15 +172,27 @@ def add_noise(series, noise_level):
 <br/>
 
 
-### 본격적인 smoothing 적용
+### [3] train 기준으로 각 범주의 타겟 평균 계산
 ```py
+
+    temp = pd.concat([trn_series, target], axis=1)
     # Compute target mean 
     averages = temp.groupby(by=trn_series.name)[target.name].agg(["mean", "count"])
+```
+<br/>
 
+
+### [4] smoothing 계산
+```py
     # Compute smoothing
     # sigmoid 함수 사용 (count가 커지면 값이 1에, count가 작으면 0에 가까워지도록)
     smoothing = 1 / (1 + np.exp(-(averages["count"] - min_samples_leaf) / smoothing))
+```
+<br/>
 
+
+### [5] 최종 인코딩 값 계산
+```py
     # Apply average function to all target data
     # 사전 평균(prior) = 범주 샘플이 부족해 범주 정보가 부족할 때 기준이 될 수 있는 "기본값"
     prior = target.mean()
@@ -187,14 +201,32 @@ def add_noise(series, noise_level):
     # 최종 인코딩 값 계산
     averages[target.name] = prior * (1 - smoothing) + averages["mean"] * smoothing #인코딩 값을 가중 평균으로 계산
     averages.drop(["mean", "count"], axis=1, inplace=True) #mean, count 임시 계산해서 smoothing 계산에 썼으니 불필요한 열은 삭제
+```
+<br/>
 
-    # Apply averages to trn and tst series
+```py
+평균값 = prior * (1 - smoothing) + 범주별 평균 * smoothing
+```
+<br/>
+
+- 각 범주의 평균을 쓰면 샘플 수가 적은 범주일수록 노이즈에 휘둘리므로 위처럼 *사전 평균(prior)*과 *범주 평균(mean)*을 적절히 섞는 방식을 사용
+    - 💡 범주에 대한 데이터가 적을수록 prior쪽을 믿고,
+    -    데이터가 많을수록 범주 자체의 평균을 더 믿게 만드는 것!
+
+<br/>
+
+### [6] pd.merge() : train/test 데이터에 인코딩 값 매핑
+### [7] 인덱스 복원
+```py
+# Apply averages to trn and tst series
     ft_trn_series = pd.merge( #위에서 계산한 평균값을 train/test 데이터에 병합해서 인코딩된 값 생성
         trn_series.to_frame(trn_series.name),
         averages.reset_index().rename(columns={'index': target.name, target.name: 'average'}),
         on=trn_series.name,
         how='left')['average'].rename(trn_series.name + '_mean').fillna(prior)
+```
 
+```py
     # pd.merge does not keep the index so restore it
     ft_trn_series.index = trn_series.index 
     ft_tst_series = pd.merge(
@@ -205,13 +237,22 @@ def add_noise(series, noise_level):
 
     # pd.merge does not keep the index so restore it
     ft_tst_series.index = tst_series.index
+```
+
+1. 각 범주에 대해 계산한 averages를 원래 데이터(trn_series, tst_series)에 매핑해야 하므로 **pd.merge()**를 사용해서 범주 → 인코딩값 붙이는 작업 실행
+
+2. BUT merge는 SQL 기반 join이므로 pandas 인덱스를 기준으로 합치지 않고, 열을 기준으로 합친다!
+    - 그래서 pd.merge()를 하면 원래 인덱스가 사라짐 
+    - 이걸 복원하기 위해 
+    ```ft_tst_series.index = tst_series.index``` 같은 코드를 작성
+<br/>
+
+
+### [8] 마지막 add_noise()
+```py
     return add_noise(ft_trn_series, noise_level), add_noise(ft_tst_series, noise_level)
 ```
 
-```py
-평균값 = prior * (1 - smoothing) + 범주별 평균 * smoothing
-```
-
-- 각 범주의 평균을 쓰면 샘플 수가 적은 범주일수록 노이즈에 휘둘리므로 위처럼 *사전 평균(prior)*과 *범주 평균(mean)*을 적절히 섞는 방식을 사용
-    - 💡 범주에 대한 데이터가 적을수록 prior쪽을 믿고,
-    -    데이터가 많을수록 범주 자체의 평균을 더 믿게 만드는 것!
+- 타겟 누수를 줄이기 위해 약간의 랜덤 노이즈 섞기
+    - 타겟 인코딩은 target 기반 값이므로 너무 직접적인 인코딩이 되면 과적합 위험이 있다..!
+    - 그래서 약간의 노이즈를 섞어 일반화 성능을 높인 상태로 마무리!
