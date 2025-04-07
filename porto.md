@@ -116,4 +116,31 @@ metadata[(metadata.type == 'categorical') & (metadata.preserve)].index
 <br/>
 <br/>
 
-## Smoothing 기법
+## 카테고리형 변수 target encoding
+
+### smoothing 기법
+```py
+def target_encode(trn_series=None,
+                  tst_series=None,
+                  target=None,
+                  min_samples_leaf=1,
+                  smoothing=1, 
+                  noise_level=0):
+```
+![prac10](./image/prac10.png)
+- 단순 평균 대신, 빈도수와 전체 평균을 함께 고려하는 기법
+- 과적합을 방지할 수 있음
+<br/>
+
+### add_noise()
+```py
+def add_noise(series, noise_level):
+    return series * (1 + noise_level * np.random.randn(len(series)))
+```
+- 인코딩된 값에 약간의 노이즈를 더해서 모델이 과도하게 해당 피쳐에 의존하지 않도록 방지
+    - noise_level이 클수록 더 많은 랜덤값 추가
+<br/>
+
+
+
+
