@@ -116,7 +116,15 @@ metadata[(metadata.type == 'categorical') & (metadata.preserve)].index
 <br/>
 <br/>
 
-## 카테고리형 변수 target encoding
+## 범주형 변수 target encoding
+
+### target encdoing이란?
+- 범주형 변수를 숫자로 바꾸는 기법 중 하나
+    - 각 범주에 대해 그 범주의 평균 타겟값으로 숫자를 부여 <br/>
+    ![prac11](./image/prac11.png) <br/>
+    - 이렇게 지역이라는 범주형 변수를 숫자로 바꿔서 모델에 넣음
+
+<br/>
 
 ### smoothing 기법
 ```py
@@ -142,5 +150,68 @@ def add_noise(series, noise_level):
 <br/>
 
 
+### 초기 안전 검사 및 데이터 준비
+```py
+    assert len(trn_series) == len(target)
+    assert trn_series.name == tst_series.name
+    temp = pd.concat([trn_series, target], axis=1)
+```
+1. trn_series(학습용 범주형 변수)와 target값 *길이가 같은지* 확인, 안 맞으면 오류를 발생시켜 함수 실행 중단
+    - 열마다 정확히 대응되는 값이 있어야 평균 계산 가능
+    - 둘의 길이가 다르면 각 범주형 값이 어떤 타겟값과 연결되어야 하는지 알 수 없으므로 계산 자체가 무의미해짐
+
+2. train용과 test용 범주형 변수의 *열 이름이 같은지* 확인
+    - train용으로 계산한 평균값을 test 데이터에도 적용하려고 할 때, 열 이름이 같아야 merge 가능 <br/>
+    ```py
+    pd.merge(tst_series, 평균값_테이블, on='Gender')
+    ```
+
+3. trn_series와 target을 옆으로 합쳐서 하나의 DataFrame으로 만듬 -> 그룹별 평균 계산을 쉽게 하기 위해
+<br/>
 
 
+### 본격적인 smoothing 적용
+```py
+    # Compute target mean 
+    averages = temp.groupby(by=trn_series.name)[target.name].agg(["mean", "count"])
+
+    # Compute smoothing
+    # sigmoid 함수 사용 (count가 커지면 값이 1에, count가 작으면 0에 가까워지도록)
+    smoothing = 1 / (1 + np.exp(-(averages["count"] - min_samples_leaf) / smoothing))
+
+    # Apply average function to all target data
+    # 사전 평균(prior) = 범주 샘플이 부족해 범주 정보가 부족할 때 기준이 될 수 있는 "기본값"
+    prior = target.mean()
+
+    # The bigger the count the less full_avg is taken into account
+    # 최종 인코딩 값 계산
+    averages[target.name] = prior * (1 - smoothing) + averages["mean"] * smoothing #인코딩 값을 가중 평균으로 계산
+    averages.drop(["mean", "count"], axis=1, inplace=True) #mean, count 임시 계산해서 smoothing 계산에 썼으니 불필요한 열은 삭제
+
+    # Apply averages to trn and tst series
+    ft_trn_series = pd.merge( #위에서 계산한 평균값을 train/test 데이터에 병합해서 인코딩된 값 생성
+        trn_series.to_frame(trn_series.name),
+        averages.reset_index().rename(columns={'index': target.name, target.name: 'average'}),
+        on=trn_series.name,
+        how='left')['average'].rename(trn_series.name + '_mean').fillna(prior)
+
+    # pd.merge does not keep the index so restore it
+    ft_trn_series.index = trn_series.index 
+    ft_tst_series = pd.merge(
+        tst_series.to_frame(tst_series.name),
+        averages.reset_index().rename(columns={'index': target.name, target.name: 'average'}),
+        on=tst_series.name,
+        how='left')['average'].rename(trn_series.name + '_mean').fillna(prior)
+
+    # pd.merge does not keep the index so restore it
+    ft_tst_series.index = tst_series.index
+    return add_noise(ft_trn_series, noise_level), add_noise(ft_tst_series, noise_level)
+```
+
+```py
+평균값 = prior * (1 - smoothing) + 범주별 평균 * smoothing
+```
+
+- 각 범주의 평균을 쓰면 샘플 수가 적은 범주일수록 노이즈에 휘둘리므로 위처럼 *사전 평균(prior)*과 *범주 평균(mean)*을 적절히 섞는 방식을 사용
+    - 💡 범주에 대한 데이터가 적을수록 prior쪽을 믿고,
+    -    데이터가 많을수록 범주 자체의 평균을 더 믿게 만드는 것!
