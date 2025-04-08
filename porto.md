@@ -295,3 +295,11 @@ def add_noise(series, noise_level):
 - 이 방식은 모델이 데이터에 과적합되지 않도록 해주고, 모델의 일반화 성능을 더 정확히 평가할 수 있음
 
 
+## Stacker
+- RandomForest, XGBoost, LogisticRegression 등 개별 모델들을 각각 독립적으로 훈련하여 예측한 후, 그 결과를 다시 받아서 최종 예측을 수행하는 모델
+<br/>
+
+➡️ 서로 다른 특성을 가진 여러 모델들의 예측을 조합하기 때문에 하나의 모델보다 더 좋은 성능 기대 가능!
+- K-Fold로 학습 -> 모델 과적합 우려 low
+- stacking -> 개별 모델들의 약점 보완 가능
+
