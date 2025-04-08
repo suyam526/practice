@@ -144,6 +144,7 @@ def target_encode(trn_series=None,
 - 단순 평균 대신, 빈도수와 전체 평균을 함께 고려하는 기법
 - 과적합을 방지할 수 있음
 <br/>
+<br/>
 
 ## 흐름 정리
 ### [1] add_noise() : 초기 노이즈 더하기
@@ -228,6 +229,7 @@ def add_noise(series, noise_level):
         on=trn_series.name,
         how='left')['average'].rename(trn_series.name + '_mean').fillna(prior)
 ```
+<br/>
 
 ```py
     # pd.merge does not keep the index so restore it
@@ -241,6 +243,7 @@ def add_noise(series, noise_level):
     # pd.merge does not keep the index so restore it
     ft_tst_series.index = tst_series.index
 ```
+<br/>
 
 1. 각 범주에 대해 계산한 averages를 원래 데이터(trn_series, tst_series)에 매핑해야 하므로 **pd.merge()**를 사용해서 범주 → 인코딩값 붙이는 작업 실행
 
@@ -292,13 +295,14 @@ def add_noise(series, noise_level):
 - 여러 개의 머신러닝 모델을 훈련시키고, 이 모델들의 예측값을 다시 최종 모델(stacker)로 묶어서 더 정확한 예측하기
 
 - 그 중에서도 해당 코드에서는 K-Fold Cross Validation(K-겹 교차 검증)과 스태킹(stacking)을 결합해 사용!
+<br/>
 
 ## K-Fold Cross Validation
 - 데이터를 K개의 부분(Fold)로 나눔
 - 그 중 하나는 검증용, 나머지는 학습용으로 사용
 - 이 과정을 K번 반복해서 모든 데이터가 한번식 검증용으로 사용되도록 함
 - 이 방식은 모델이 데이터에 과적합되지 않도록 해주고, 모델의 일반화 성능을 더 정확히 평가할 수 있음
-
+<br/>
 
 ## Stacker
 - RandomForest, XGBoost, LogisticRegression 등 개별 모델들을 각각 독립적으로 훈련하여 예측한 후, 그 결과를 다시 받아서 최종 예측을 수행하는 모델
