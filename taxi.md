@@ -87,3 +87,63 @@ plt.ylabel("Trip Duration (log scale)")
     - **방향성에 따른 특성 차이를 발견**하기 위한 시각화 <br/>
     ex. 남쪽(180도)으로 가는 경로는 시간이 길다? 그럼 교통체증이 심한가? 북동쪽(45도~90도) 방향은 고속도로라서 시간이 짧은건가? 특정 방향에서만 이상하게 오래 걸리는 trip이 있다면 이상치 분석해보자!
     - 이처럼 단순히 거리뿐만 아니라 방향도 중요하기 때문에 분석 시 방향에 따른 이동 시간 패턴이 뚜렷하다면 **bearing을 모델 feature로 넣는 것이 유의미**해질 것! 
+
+<br/>
+<br/>
+<br/>
+
+## k-means와 오류 ^^..
+- 변수에 결측값이 포함되어 있으면 KMeans는 학습을 못함..
+
+- 사건의 발단
+```py
+coords = np.vstack((train[['pickup_latitude', 'pickup_longitude']].values,
+                    train[['dropoff_latitude', 'dropoff_longitude']].values,
+                    test[['pickup_latitude', 'pickup_longitude']].values,
+                    test[['dropoff_latitude', 'dropoff_longitude']].values))
+```
+-  train과 test의 위도/경도 데이터를 합쳤는데, 이 안에 NaN 값이 있는 셀이 섞여있었음
+<br/>
+
+- 해결 방법
+1. coords 안에 NaN 있는지 확인
+```py
+print(np.isnan(coords).sum())  # NaN 개수 세기
+```
+2. pickup과 dropoff을 묶어서 한번에 dropna()하기
+```py 
+coords_df = pd.concat([
+    train[['pickup_latitude', 'pickup_longitude']],
+    train[['dropoff_latitude', 'dropoff_longitude']].rename(columns={
+        'dropoff_latitude': 'pickup_latitude',
+        'dropoff_longitude': 'pickup_longitude'
+    }),
+    test[['pickup_latitude', 'pickup_longitude']],
+    test[['dropoff_latitude', 'dropoff_longitude']].rename(columns={
+        'dropoff_latitude': 'pickup_latitude',
+        'dropoff_longitude': 'pickup_longitude'
+    })
+])
+
+coords_df = coords_df.dropna()
+coords = coords_df.values
+```
+- 각 df에서 따로 dropna()하면 pickup에는 결측값이 없어도 dropoff는 있는 경우 한쪽만 NaN인 행이 남아 있을 가능성이 있음..! 그래서 아예 묶어서 한번에 dropna()하는게 안전
+
+
+## train-test 간 컬럼 일치
+```py
+col_in_train_not_test = set(train_cols) - set(test_cols)
+for col in col_in_train_not_test:
+    if col != target_column:
+        testing[col] = 0  # 없는 컬럼은 0으로 채워 넣음
+
+col_in_test_not_train = set(test_cols) - set(train_cols)
+for col in col_in_test_not_train:
+    training[col] = 0  # 반대도 마찬가지
+```
+- 모델 학습&예측할 때는 동일한 피쳐 구조를 가져야 함
+    - but train에는 있는데 test에는 없거나 반대의 경우 있을 수 있으므로 해당 코드 사용해서 train/test 컬럼 수와 순서를 동일하게 만듬
+
+
+
