@@ -129,7 +129,9 @@ coords_df = coords_df.dropna()
 coords = coords_df.values
 ```
 - 각 df에서 따로 dropna()하면 pickup에는 결측값이 없어도 dropoff는 있는 경우 한쪽만 NaN인 행이 남아 있을 가능성이 있음..! 그래서 아예 묶어서 한번에 dropna()하는게 안전
-
+<br/>
+<br/>
+<br/>
 
 ## train-test 간 컬럼 일치
 ```py
