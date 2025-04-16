@@ -97,7 +97,7 @@ plt.ylabel("Trip Duration (log scale)")
     - 위도와 경도를 기반으로 택시가 어느 동네에서 많이 잡혔는지 KMeans로 자동 분류
     - pickup_latitude, pickup_longitude는 수치형이라 바로 해석하기 어려우므로 KMeans로 "동네"처럼 묶어서 pickup_neighbourhood이라는 새로운 범주형 변수를 만듬 
 - 변수에 결측값이 포함되어 있으면 KMeans는 학습을 못함..
-
+<br/>
 - 사건의 발단
 ```py
 coords = np.vstack((train[['pickup_latitude', 'pickup_longitude']].values,
