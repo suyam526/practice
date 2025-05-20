@@ -48,6 +48,17 @@ LOGGER = init_logger()
     - train.log 파일에 저장되며 나중에 학습 결과 확인/디버깅 시 유용
 
 - seed_torch 함수 : 랜덤 고정
+    ```py
+    def seed_torch(seed=42):
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
+
+seed_torch(seed=CFG.seed)
+    ```
     - 같은 코드로 학습 여러 번 해도 결과가 조금씩 달라질 수 있으므로<br/>
     시드를 고정해서 **랜덤성 통제**하는 것
         - random.seed(): 파이썬 내장 랜덤 고정
