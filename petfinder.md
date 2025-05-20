@@ -15,6 +15,8 @@ class CFG:
 - 한 번에 여러 설정 모아서 관리하면 유지보수 쉬움
 - 추후 CFG.model_name, CFG.batch_size 이런 식으로 모델 훈련에 사용됨
 
+-------
+
 
 ### Utility (유틸리티 함수들)
 - get_score 함수 : 모델 성능 평가 (RMSE 계산)
@@ -37,4 +39,4 @@ class CFG:
         - np.random.seed(): 넘파이 랜덤 고정<br/>
         등등..
 
-        
+
