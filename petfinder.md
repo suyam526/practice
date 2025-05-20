@@ -29,6 +29,21 @@ class CFG:
     - squared=True → MSE (제곱까지만 계산, 더 큰 오차에 민감)
 
 - init_logger 함수 : 로그 시스템 설정
+```PY
+def init_logger(log_file=OUTPUT_DIR+'train.log'):
+    from logging import getLogger, INFO, FileHandler, Formatter, StreamHandler
+    logger = getLogger(__name__)
+    logger.setLevel(INFO)
+    handler1 = StreamHandler()
+    handler1.setFormatter(Formatter("%(message)s"))
+    handler2 = FileHandler(filename=log_file)
+    handler2.setFormatter(Formatter("%(message)s"))
+    logger.addHandler(handler1)
+    logger.addHandler(handler2)
+    return logger
+
+LOGGER = init_logger()
+```
     - 학습 도중 중요한 정보를 화면에 출력 + 로그 파일에 저장
     - train.log 파일에 저장되며 나중에 학습 결과 확인/디버깅 시 유용
 
