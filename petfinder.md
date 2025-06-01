@@ -78,10 +78,13 @@ seed_torch(seed=CFG.seed)
 3. LightGBM을 이용한 메타데이터 + 이미지 특징 조합 회귀
     - run_kfold_lightgbm 함수로 5-fold 교차 검증 수행
     - 결과 시각화 및 feature 중요도 저장
+<BR/>
+<BR/>
+<BR/>
 
 + 딥러닝 + 회귀 모델 
-- CNN 기반 딥러닝 모델 (CustomModel) : 이미지에서 복잡한 패턴을 벡터로 feature 추출 -> 1280차원의 feature vector 출력
-- LightGBM 회귀 모델 : 메타데이터와 cnn에서 추출된 이미지 feature를 입력 -> 트리 기반 모델, Pawpularity 점수를 회귀로 예측
+    - CNN 기반 딥러닝 모델 (CustomModel) : 이미지에서 복잡한 패턴을 벡터로 feature 추출 -> 1280차원의 feature vector 출력
+    - LightGBM 회귀 모델 : 메타데이터와 cnn에서 추출된 이미지 feature를 입력 -> 트리 기반 모델, Pawpularity 점수를 회귀로 예측
 
 -> 메타데이터 해석이 어렵지만 이미지의 복잡한 패턴을 감지할 수 있는 CNN과 이미지 같은 고차원 비정형 데이터는 못 다루지만 수치/범주형 피쳐 처리와 해석에 강한 LightGBM 합침
 
